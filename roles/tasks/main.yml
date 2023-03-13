@@ -1,0 +1,91 @@
+# tasks file for s3_object_upload
+- name: Check for Python
+  raw: test -e /usr/bin/python
+  changed_when: false
+  failed_when: false
+  register: check_python
+
+- name: install python
+  yum:
+    name: python3
+    state: present
+  when: check_python.rc != 0
+
+- name: Installing Basic Utilities to run next task
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - python3-pexpect
+    - unzip
+  tags: aws_cli
+
+- name: install python3-pip
+  yum:
+    name: python3-pip
+    state: present
+
+- name: Upgrade pip
+  pip: name=pip state=latest
+  tags:
+    - packages
+
+- name: Ensure botocore and boto3 modules are installed
+  pip:
+    name: [ "boto3", "botocore"]
+    extra_args: "--user"
+
+- name: Creating necessary directories...
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  with_items:
+    - /tmp/master_dir/aws_cli_download
+    - /home/ec2-user/.aws/
+  tags: aws_cli
+
+- name: downloading AWS CLI
+  shell: "{{item}}"
+  args:
+    chdir: /tmp/master_dir/aws_cli_download
+  with_items:
+    - curl "{{aws_cli_url}}" -o "{{aws_artifact}}"
+    - unzip "{{aws_artifact}}"
+  tags: aws_cli
+
+- name: Now installing the AWS CLI
+  shell: ./install -i /usr/local/aws-cli -b /usr/sbin --update
+  args:
+    chdir: /tmp/master_dir/aws_cli_download/aws/
+  tags: aws_cli
+
+- name: copy file from local to machine2
+  copy:
+    src: /home/ec2-user/Ansible_install_redhat/roles/s3_object_upload/files/
+    dest: /home/ec2-user/.aws
+  tags: upload
+
+- name: Create an s3 bucket
+  aws_s3:
+    region: "{{ aws_region }}"
+    aws_access_key: "{{ aws_access_key_id }}"
+    aws_secret_key: "{{ aws_secret_access_key }}"
+    bucket: "{{ bucket }}"
+    mode: create
+
+- name: Upload backup file to s3
+  aws_s3:
+    profile: default
+    bucket: "{{ bucket }}"
+    mode: put
+    object: "script"
+    src: "/home/ec2-user/script"
+  register: putresult
+  tags: upload
+  
+- debug: msg= "{{ putresult.msg }} and the S3 Object URL is {{putresult.url}}"
+  when: putresult.changed
+  tags: upload
+
+  

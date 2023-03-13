@@ -1,43 +1,38 @@
-# Ansible AWS CLI Playbook
-Ansible playbook to install AWS CLI on Ubuntu 14.04. Should work on most other versions of Ubuntu too.
+Role Name
+=========
 
-## Setup
-- Clone or download the repo to your Ansible machine
-- Add your host information within `inventories/hosts`
-- Add your AWS credentials and bucket details within `vars/awscredentials.yml`
+A brief description of the role goes here.
 
-## Aws credentials setup
-- You need two things basically `aws_access_key_id` & `aws_secret_key` and you find these credentials into aws console.
-- So , you can navigate to aws console at right corner to your profile --> `Security credentials` ---> `access keys` ---> create new access key/refer to pervious key.
-- Make sure you keep on updating the key to avoid (403) forbidden error.
+Requirements
+------------
 
-## Ansible vault
-- Valut is used to keep your information secure.
-- vault can be used to keep your information encrypted .
-  ```
-  ansible-vault encrypt awscredentials.yml
-  ```
-  - After the above command you need to enter a new password. So, if you want to decrypt /open the file you need to use the given password.
-  - To decrypt your information you can use the below command 
-  ```
-  ansible-vault decrypt awscredentials.yml
-  ```
+Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
 
-## Bucket details
-- Make sure you give a unique bucket name which starts with no. or alphabet. Avoid using capital letters.
-- object is the name of the file that you want to upload to s3 bucket
-- And src is the path of your object file that you want to upload into s3 bucket.
+Role Variables
+--------------
 
-## Run Playbook
-Below is how I prefer to run Ansible playbooks.
-```
-ansible-playbook -i inventories/hosts playbook.yml
-```
-You can also run Ansible playbooks using below command:
-```
-ansible-playbook -i inventories/hosts playbook.yml --extra-vars="hosts=sonarqube user=ubuntu" --ask-pass
-```
+A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
 
-The `--extra-vars` parameter sets the "host" and "user" variable in the `playbook` file. And `--ask-pass` will prompt you for a password.
+Dependencies
+------------
 
+A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
 
+Example Playbook
+----------------
+
+Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+
+    - hosts: servers
+      roles:
+         - { role: username.rolename, x: 42 }
+
+License
+-------
+
+BSD
+
+Author Information
+------------------
+
+An optional section for the role authors to include contact information, or a website (HTML is not allowed).
